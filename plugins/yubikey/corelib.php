@@ -85,8 +85,7 @@ function yubikey_validate_otp($otp)
       );
   }
   $response = trim($response);
-  $response_nosig = preg_replace('/^h=(.+?)$/m', '', $response);
-  if ( !preg_match_all('/^([a-z0-9_]+)=(.*?)$/m', $response, $matches) )
+  if ( !preg_match_all('/^([a-z0-9_]+)=(.*?)\r?$/m', $response, $matches) )
   {
     return array(
         'success' => false,
@@ -145,14 +144,15 @@ function yubikey_sign($arr)
   static $api_key = false;
   
   ksort($arr);
-  if ( isset($arr['h']) )
-    unset($arr['h']);
   
   if ( !$api_key )
   {
     $api_key = getConfig('yubikey_api_key');
     $api_key = hexencode(base64_decode($api_key), '', '');
   }
+  
+  if ( isset($arr['h']) )
+    unset($arr['h']);
   
   $req = array();
   foreach ( $arr as $key => $val )
