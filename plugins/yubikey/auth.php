@@ -19,6 +19,12 @@ function yubikey_auth_hook_json(&$userdata, $level, $remember)
   
   $auth_log_prefix = ( $level >= USER_LEVEL_CHPREF ) ? 'admin_' : '';
   
+  // Sort of a hack: if the password looks like an OTP and the OTP field is empty, use the password as the OTP
+  if ( empty($userdata['yubikey_otp']) && preg_match('/^[cbdefghijklnrtuv]{44}$/', $userdata['password'] ) )
+  {
+    $userdata['yubikey_otp'] = $userdata['password'];
+  }
+  
   if ( !empty($userdata['username']) )
   {
     // get flags
