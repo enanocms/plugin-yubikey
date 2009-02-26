@@ -172,6 +172,9 @@ $plugins->attachHook('compile_template', 'yubikey_attach_headers($this);');
 
 function yubikey_attach_headers(&$template)
 {
+  if ( getConfig('yubikey_enable', '1') != '1' )
+    return true;
+  
   $template->add_header('<script type="text/javascript" src="' . scriptPath . '/plugins/yubikey/yubikey.js"></script>');
   $template->add_header('<link rel="stylesheet" type="text/css" href="' . scriptPath . '/plugins/yubikey/yubikey.css" />');
 }

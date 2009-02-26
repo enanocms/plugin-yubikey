@@ -1,5 +1,8 @@
 <?php
 
+if ( getConfig('yubikey_enable', '1') != '1' )
+    return true;
+
 // hook into auth
 $plugins->attachHook('login_process_userdata_json', 'return yubikey_auth_hook_json($userinfo, $req["level"], @$req["remember"]);');
 // hook into special page init
@@ -188,6 +191,9 @@ function yubikey_add_special_pages()
 {
   global $db, $session, $paths, $template, $plugins; // Common objects
   global $lang;
+  
+  if ( getConfig('yubikey_enable', '1') != '1' )
+    return true;
   
   $paths->add_page(array(
       'name' => $lang->get('yubiauth_specialpage_yubikey'),

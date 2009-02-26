@@ -1,5 +1,8 @@
 <?php
 
+if ( getConfig('yubikey_enable', '1') != '1' )
+  return true;
+
 $plugins->attachHook("userprefs_jbox", "yubikey_ucp_setup();");
 $plugins->attachHook("userprefs_body", "return yubikey_user_cp(\$section);");
 $plugins->attachHook("login_form_html", "yubikey_inject_html_login();");
