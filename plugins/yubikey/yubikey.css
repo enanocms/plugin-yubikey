@@ -1,0 +1,36 @@
+span.yubikey_status {
+  font-weight: bold;
+}
+
+span.yubikey_status.empty {
+  color: #6699CC;
+}
+
+span.yubikey_status.savepending {
+  color: #f5ac00;
+}
+
+span.yubikey_status.rmpending {
+  color: #aa0000;
+}
+
+span.yubikey_status.enrolled {
+  color: #008000;
+}
+
+a.yubikey_enroll {
+  font-size: smaller;
+}
+
+tr.yk_alt1 td {
+  background-color: #f8f8f8;
+}
+
+input.yubikey_noscript {
+  background-color: white;
+  background-image: url(./formicon.gif);
+  background-position: 1px 1px;
+  background-repeat: no-repeat;
+  padding-left: 18px;
+}
+
