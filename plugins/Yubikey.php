@@ -47,7 +47,7 @@ ALTER TABLE {{TABLE_PREFIX}}users ADD COLUMN user_yubikey_flags smallint NOT NUL
 // Uninstall schema
 /**!uninstall**
 DROP TABLE {{TABLE_PREFIX}}yubikey;
-ALTER TABLE {{TABLE_PREFIX}}users STOP user_yubikey_flags;
+ALTER TABLE {{TABLE_PREFIX}}users DROP user_yubikey_flags;
 **!*/
 
 /**!language**
