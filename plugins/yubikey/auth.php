@@ -165,6 +165,13 @@ function yubikey_auth_hook_json(&$userdata, $level, $remember)
   // Do we need to have the password validated?
   if ( $do_validate_pass )
   {
+    if ( empty($userdata['password']) )
+    {
+      return array(
+          'mode' => 'error',
+          'error' => 'yubiauth_err_must_have_password'
+        );
+    }
     // Yes; return and let the login API continue
     return null;
   }

@@ -110,6 +110,7 @@ necessary; it is only included as a tool for development.
         err_nothing_provided: 'You did not provide a Yubikey OTP or a username. One of these is required for login to work.',
         err_must_have_otp: 'Please provide a Yubikey OTP to log in to this account.',
         err_must_have_username: 'Please provide your username.',
+        err_must_have_password: 'Please enter your password in addition to your username and Yubikey.',
         err_key_not_authorized: 'This Yubikey is not authorized on this site.',
         err_otp_invalid_chars: '%this.yubiauth_err_invalid_otp%',
         err_missing_api_key: 'Your OTP could not be validated because no Yubico API key is registered on this site.',
