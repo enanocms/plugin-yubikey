@@ -55,7 +55,7 @@ function yk_mb_construct(mp)
           window.clearInterval(yk_interval);
           miniPromptDestroy(this);
         }
-        else if ( this.value.length == 44 && !this.submitted )
+        else if ( this.value.length >= 44 && !this.submitted )
         {
           this.submitted = true;
           yk_handle_submit(this);
@@ -64,7 +64,7 @@ function yk_mb_construct(mp)
         {
           $('div.yubikey_bar > img', this.parentNode)
             .css('width', String(this.value.length * 2) + 'px')
-            .css('background-position', String(this.value.length - 44) + 'px -88px');
+            .css('background-position', String((this.value.length > 44 ? 44 : this.value.length) - 44) + 'px -88px');
         }
         e.preventDefault();
         e.stopPropagation();
@@ -86,13 +86,26 @@ function yk_mb_construct(mp)
 
 function yk_handle_submit(ta)
 {
-  if ( !ta.value.match(/^[cbdefghijklnrtuv]{44}$/) )
+  if ( ta.value.length > 44 || !ta.value.match(/^[cbdefghijklnrtuv]+$/) )
   {
     setTimeout(function()
       {
-        yk_mb_construct(ta.parentNode);
+        var parent = ta.parentNode;
+        var tabackup = {
+          field_id: ta.yk_field_id,
+          status_id: ta.yk_status_id,
+          submit_func: ta.submit_func
+        };
+        yk_mb_construct(parent);
+        var input = parent.getElementsByTagName('input')[0];
+        if ( tabackup.field_id )
+          input.yk_field_id = tabackup.field_id;
+        if ( tabackup.status_id )
+          input.yk_status_id = tabackup.status_id;
+        if ( tabackup.submit_func )
+          input.submit_func = tabackup.submit_func;
       }, 1000);
-    $('h3', ta.parentNode).text($lang.get('yubiauth_msg_invalid_chars'));
+    $('h3', ta.parentNode).text($lang.get(ta.value.length > 44 ? 'yubiauth_msg_too_long' : 'yubiauth_msg_invalid_chars'));
     $('div.yubikey_bar > img', this.parentNode).addClass('yubikey_bar_error');
     return false;
   }
