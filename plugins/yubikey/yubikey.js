@@ -252,6 +252,13 @@ function yk_login_dlg_hook(table)
       $('#messageBoxButtons input:button:first').focus();
       $('#ajax_login_field_captcha').focus();
     });
+  if ( window.yk_reg_require_otp )
+  {
+    setTimeout(function()
+      {
+        yk_mb_init(yk_login_validate_reqs);
+      }, 750);
+  }
   tr.appendChild(td);
   table.appendChild(tr);
 }
