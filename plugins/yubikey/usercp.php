@@ -6,6 +6,9 @@ if ( getConfig('yubikey_enable', '1') != '1' )
 $plugins->attachHook("userprefs_jbox", "yubikey_ucp_setup();");
 $plugins->attachHook("userprefs_body", "return yubikey_user_cp(\$section);");
 $plugins->attachHook("login_form_html", "yubikey_inject_html_login();");
+$plugins->attachHook("ucp_register_form", "yubikey_inject_registration_form();");
+$plugins->attachHook("ucp_register_validate", "yubikey_register_validate(\$error);");
+$plugins->attachHook("user_registered", "yubikey_register_insert_key(\$user_id);");
 
 function yubikey_ucp_setup()
 {
@@ -268,3 +271,76 @@ function yubikey_inject_html_login()
   <?php
 }
 
+function yubikey_inject_registration_form()
+{
+  global $lang;
+  
+  $preset_otp = isset($_POST['yubikey_otp']) ? $_POST['yubikey_otp'] : false;
+  ?>
+  <tr>
+    <td class="row1">
+      <?php echo $lang->get('yubiucp_reg_field_otp'); ?><br />
+      <small><?php
+        if ( getConfig('yubikey_reg_require_otp', '0') == '1' )
+          echo $lang->get('yubiucp_reg_field_otp_hint_required');
+        else
+          echo $lang->get('yubiucp_reg_field_otp_hint_optional');
+      ?></small>
+    </td>
+    <td class="row1">
+      <?php
+      echo generate_yubikey_field('yubikey_otp', $preset_otp);
+      ?>
+    </td>
+    <td class="row1">
+    </td>
+  </tr>
+  <?php
+}
+
+function yubikey_register_validate(&$error)
+{
+  global $db, $session, $paths, $template, $plugins; // Common objects
+  global $lang;
+  
+  $otp_required = getConfig('yubikey_reg_require_otp', '0') == '1';
+  $have_otp = !empty($_POST['yubikey_otp']);
+  if ( $otp_required && !$have_otp )
+  {
+    $error = $lang->get('yubiucp_reg_err_otp_required');
+    return false;
+  }
+  if ( $have_otp )
+  {
+    $result = yubikey_validate_otp($_POST['yubikey_otp']);
+    if ( !$result['success'] )
+    {
+      $error = '<b>' . $lang->get('yubiucp_reg_err_otp_invalid') . '</b><br />' . $lang->get("yubiauth_err_{$result['error']}");
+      return false;
+    }
+    // check for double enrollment
+    $yubi_uid = substr($_POST['yubikey_otp'], 0, 12);
+    // Note on SQL injection: yubikey_validate_otp() has already ensured that this is safe
+    $q = $db->sql_query('SELECT 1 FROM ' . table_prefix . "yubikey WHERE yubi_uid = '$yubi_uid';");
+    if ( !$q )
+      $db->_die();
+    if ( $db->numrows() > 0 )
+    {
+      $error = '<b>' . $lang->get('yubiucp_reg_err_otp_invalid') . '</b><br />' . $lang->get('yubiucp_err_double_enrollment_single');
+      return false;
+    }
+    $db->free_result();
+  }
+}
+
+function yubikey_register_insert_key($user_id)
+{
+  global $db, $session, $paths, $template, $plugins; // Common objects
+  if ( !empty($_POST['yubikey_otp']) )
+  {
+    $yubi_uid = $db->escape(substr($_POST['yubikey_otp'], 0, 12));
+    $q = $db->sql_query('INSERT INTO ' . table_prefix . "yubikey ( user_id, yubi_uid ) VALUES ( $user_id, '$yubi_uid' );");
+    if ( !$q )
+      $db->_die();
+  }
+}

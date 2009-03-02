@@ -92,6 +92,7 @@ necessary; it is only included as a tool for development.
         msg_please_touch_key: 'Please touch your Yubikey',
         msg_close_instructions: 'Press <tt>Esc</tt> to cancel',
         msg_invalid_chars: 'OTP contains invalid characters',
+        msg_too_long: 'OTP is too long',
         msg_validating_otp: 'Validating OTP...',
         msg_otp_valid: 'OTP validated',
         btn_enter_otp: 'Enter a Yubikey OTP',
@@ -148,6 +149,13 @@ necessary; it is only included as a tool for development.
         field_allow_plain_login: 'Allow me to log in without my Yubikey',
         field_allow_plain_login_hint: 'If this option is turned off, you will be unable to access your account if all of your enrolled Yubikeys become lost or broken. However, turning this option off provides greater security.',
         err_double_enrollment: 'One of the Yubikeys you tried to enroll is already enrolled on another account on this website. A single Yubikey can only be associated with one account at a time.',
+        err_double_enrollment_single: 'The Yubikey you tried to enroll is already enrolled on another account on this website. A single Yubikey can only be associated with one account at a time.',
+        
+        reg_field_otp: 'Enroll a <a href="http://www.yubico.com/products/yubikey" onclick="window.open(this.href); return false;">Yubikey</a>:',
+        reg_field_otp_hint_optional: 'If you have a Yubikey, you can authorize it for use in your new account here.',
+        reg_field_otp_hint_required: 'Please enroll a Yubikey here to create an account. This is a required step.',
+        reg_err_otp_required: 'Please enroll a Yubikey to register on this site.',
+        reg_err_otp_invalid: 'Your Yubikey OTP failed to validate.'
       },
       yubiacp: {
         th: 'Yubikey authentication',
@@ -157,6 +165,9 @@ necessary; it is only included as a tool for development.
         field_api_key_id: 'Yubico numeric ID:',
         field_auth_server: 'Authentication server URL:',
         field_enroll_limit: 'Number of enrolled keys permitted per account:',
+        field_reg_require_otp_title: 'Yubikey required for registration:',
+        field_reg_require_otp_hint: 'If this is enabled, users will be asked to enroll a Yubikey during registration. The enrolled Yubikey will be authorized for the new account.',
+        field_reg_require_otp: 'Require Yubikey during registration',
         
         err_invalid_auth_server: 'The URL to the Yubikey authentication server that you entered is invalid.'
       }
