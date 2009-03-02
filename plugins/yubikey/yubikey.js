@@ -33,6 +33,12 @@ function yk_mb_construct(mp)
   mp.innerHTML = '';
   mp.style.textAlign = 'center';
   mp.innerHTML = '<h3>' + $lang.get('yubiauth_msg_please_touch_key') + '</h3>';
+  var progress = document.createElement('div');
+  $(progress).addClass('yubikey_bar');
+  var progimg = document.createElement('img');
+  progimg.src = cdnPath + '/images/spacer.gif';
+  progress.appendChild(progimg);
+  mp.appendChild(progress);
   var ta = document.createElement('input');
   ta.submitted = false;
   $(ta)
@@ -54,6 +60,12 @@ function yk_mb_construct(mp)
           this.submitted = true;
           yk_handle_submit(this);
         }
+        else
+        {
+          $('div.yubikey_bar > img', this.parentNode)
+            .css('width', String(this.value.length * 2) + 'px')
+            .css('background-position', String(this.value.length - 44) + 'px -88px');
+        }
         e.preventDefault();
         e.stopPropagation();
       });
@@ -66,7 +78,9 @@ function yk_mb_construct(mp)
         }, 50);
     }, 750);
   var info = document.createElement('p');
-  info.innerHTML = $lang.get('yubiauth_msg_close_instructions');
+  $(info)
+    .html($lang.get('yubiauth_msg_close_instructions'))
+    .css('margin-top', '0');
   mp.appendChild(info);
 }
 
@@ -78,7 +92,8 @@ function yk_handle_submit(ta)
       {
         yk_mb_construct(ta.parentNode);
       }, 1000);
-    ta.previousSibling.innerHTML = $lang.get('yubiauth_msg_invalid_chars');
+    $('h3', ta.parentNode).text($lang.get('yubiauth_msg_invalid_chars'));
+    $('div.yubikey_bar > img', this.parentNode).addClass('yubikey_bar_error');
     return false;
   }
   
@@ -114,10 +129,10 @@ function yk_handle_submit(ta)
 
 function yk_login_validate_reqs(ta)
 {
-  ta.parentNode.removeChild(ta.nextSibling);
+  $(ta.parentNode).remove('p');
   yubikey_otp_current = ta.value;
   
-  ta.previousSibling.innerHTML = $lang.get('yubiauth_msg_validating_otp');
+  $('h3', ta.parentNode).text($lang.get('yubiauth_msg_validating_otp'));
   
   ajaxPost(makeUrlNS('Special', 'Yubikey'), 'get_flags=' + ta.value.substr(0, 12), function(ajax)
     {
@@ -129,7 +144,7 @@ function yk_login_validate_reqs(ta)
           handle_invalid_json(ajax.responseText);
           return false;
         }
-        ta.previousSibling.innerHTML = $lang.get('yubiauth_msg_otp_valid');
+        $('h3', ta.parentNode).text($lang.get('yubiauth_msg_otp_valid'));
         var response = parseJSON(ajax.responseText);
         if ( response.mode == 'error' )
         {

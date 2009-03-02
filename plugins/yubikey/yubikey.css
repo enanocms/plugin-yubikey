@@ -34,3 +34,24 @@ input.yubikey_noscript {
   padding-left: 18px;
 }
 
+div.yubikey_bar {
+  width: 88px;
+  height: 88px;
+  margin: 4px auto;
+  text-align: center;
+  background-image: url(./field.png);
+  background-repeat: no-repeat;
+}
+
+div.yubikey_bar > img {
+  width: 0px;
+  height: 88px;
+  background-image: url(./field.png);
+  background-repeat: no-repeat;
+  background-position: -44px -88px;
+}
+
+div.yubikey_bar > img.yubikey_bar_error {
+  width: 88px !important;
+  background-position: 0px -176px !important;
+}
