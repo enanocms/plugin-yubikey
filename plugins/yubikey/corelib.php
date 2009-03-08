@@ -126,9 +126,19 @@ function yubikey_validate_otp($otp)
   }
   if ( $response['status'] === 'OK' )
   {
-    return array(
-        'success' => true
-      );
+    if ( yubikey_verify_timestamp($response['t']) )
+    {
+      return array(
+          'success' => true
+        );
+    }
+    else
+    {
+      return array(
+          'success' => false,
+          'error' => 'timestamp_check_failed'
+        );
+    }
   }
   else
   {
@@ -168,16 +178,56 @@ function yubikey_sign($arr)
   return $sig;
 }
 
+/**
+ * Validate the timestamp returned in a Yubico API response. Borrowed from Drupal and backported for friendliness with earlier versions of PHP.
+ * @param string Yubico timestamp
+ * @return bool True if valid, false otherwise
+ */
+
+function yubikey_verify_timestamp($timestamp)
+{
+  $tolerance = intval(getConfig('yubikey_api_ts_tolerance', 150));
+  
+  $now = time();
+  $timestamp_seconds = strtotime(substr($timestamp, 0, -4));
+
+  if ( !$timestamp || !$now )
+  {
+    return false;
+  }
+
+  if ( ( $timestamp_seconds + $tolerance ) > $now && ( $timestamp_seconds - $tolerance ) < $now )
+  {
+    return true;
+  }
+
+  return false;
+}
+
+
 $plugins->attachHook('compile_template', 'yubikey_attach_headers($this);');
 
 function yubikey_attach_headers(&$template)
 {
+  global $db, $session, $paths, $template, $plugins; // Common objects
+  
   if ( getConfig('yubikey_enable', '1') != '1' )
     return true;
   
   $template->add_header('<script type="text/javascript" src="' . scriptPath . '/plugins/yubikey/yubikey.js"></script>');
   $template->add_header('<link rel="stylesheet" type="text/css" href="' . scriptPath . '/plugins/yubikey/yubikey.css" />');
   // config option for all users have yubikey
-  $template->add_header('<script type="text/javascript">var yk_reg_require_otp = ' . getConfig('yubikey_reg_require_otp', '0') . '</script>');
+  $user_flags = 0;
+  if ( $session->user_logged_in )
+  {
+    $q = $db->sql_query('SELECT COUNT(yubi_uid) > 0 FROM ' . table_prefix . "yubikey WHERE user_id = {$session->user_id};");
+    if ( !$q )
+      $db->_die();
+    
+    list($user_flags) = $db->fetchrow_num();
+    $db->free_result();
+  }
+  
+  $template->add_header('<script type="text/javascript">var yk_reg_require_otp = ' . getConfig('yubikey_reg_require_otp', '0') . '; var yk_user_enabled = ' . $user_flags . ';</script>');
 }
 

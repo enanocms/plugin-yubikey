@@ -252,7 +252,7 @@ function yk_login_dlg_hook(table)
       $('#messageBoxButtons input:button:first').focus();
       $('#ajax_login_field_captcha').focus();
     });
-  if ( window.yk_reg_require_otp )
+  if ( window.yk_reg_require_otp || window.yk_user_enabled )
   {
     setTimeout(function()
       {
