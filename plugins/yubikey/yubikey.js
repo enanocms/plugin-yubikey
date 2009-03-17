@@ -233,7 +233,6 @@ addOnloadHook(function()
   {
     attachHook('login_build_form', 'yk_login_dlg_hook(table);');
     attachHook('login_build_userinfo', 'if ( window.yubikey_otp_current ) userinfo.yubikey_otp = window.yubikey_otp_current;');
-    load_component(['expander', 'jquery', 'jquery-ui']);
   });
 
 function yk_login_dlg_hook(table)
