@@ -6,7 +6,8 @@
   "Description"  : "Allows authentication to Enano via Yubico's Yubikey, a one-time password device.",
   "Author"       : "Dan Fuhry",
   "Version"      : "1.1.6",
-  "Author URI"   : "http://enanocms.org/"
+  "Author URI"   : "http://enanocms.org/",
+  "Auth plugin"  : true
 }
 **!*/
 
