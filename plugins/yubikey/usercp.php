@@ -12,7 +12,7 @@ $plugins->attachHook("user_registered", "yubikey_register_insert_key(\$user_id);
 
 function yubikey_ucp_setup()
 {
-  userprefs_menu_add('usercp_sec_profile', 'yubiucp_panel_title', makeUrlNS('Special', 'Preferences/Yubikey'));
+  userprefs_menu_add('usercp_sec_profile', 'yubiucp_panel_title', makeUrlNS('Special', 'Preferences/Yubikey') . '" onclick="ajaxLoginNavTo(\'Special\', \'Preferences/Yubikey\', '.USER_LEVEL_CHPREF.'); return false;');
 }
 
 function yubikey_user_cp($section)
@@ -22,6 +22,11 @@ function yubikey_user_cp($section)
   
   if ( $section !== 'Yubikey' )
     return false;
+  
+  if ( $session->auth_level < USER_LEVEL_CHPREF )
+  {
+    redirect(makeUrlNS('Special', 'Login/' . $paths->fullpage, 'level=' . USER_LEVEL_CHPREF, true), 'Authentication required', 'You need to re-authenticate to access this page.', 0);
+  }
   
   $count_enabled = intval(getConfig('yubikey_enroll_limit', '3'));
   
