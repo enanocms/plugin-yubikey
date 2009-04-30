@@ -61,7 +61,7 @@ function yubikey_validate_otp($otp)
   require_once( ENANO_ROOT . '/includes/http.php' );
   $auth_url = getConfig('yubikey_auth_server', YK_DEFAULT_VERIFY_URL);
   $auth_url = preg_replace('#^https?://#i', '', $auth_url);
-  if ( !preg_match('#^(\[?[a-z0-9-:]+(?:\.[a-z0-9-:]+\]?)*)(/.*)$#', $auth_url, $match) )
+  if ( !preg_match('#^(\[?[a-z0-9-:]+(?:\.[a-z0-9-:]+\]?)*)(?::([0-9]+))?(/.*)$#U', $auth_url, $match) )
   {
     return array(
         'success' => false,
@@ -69,13 +69,25 @@ function yubikey_validate_otp($otp)
       );
   }
   $auth_server =& $match[1];
-  $auth_uri =& $match[2];
-  $req = new Request_HTTP($auth_server, $auth_uri);
-  $req->add_get('id', strval($api_id));
-  $req->add_get('otp', $otp);
-  $req->add_get('h', yubikey_sign($req->parms_get));
+  $auth_port = ( !empty($match[2]) ) ? intval($match[2]) : 80;
+  $auth_uri =& $match[3];
+  try
+  {
+    $req = new Request_HTTP($auth_server, $auth_uri, 'GET', $auth_port);
+    $req->add_get('id', strval($api_id));
+    $req->add_get('otp', $otp);
+    $req->add_get('h', yubikey_sign($req->parms_get));
   
-  $response = $req->get_response_body();
+    $response = $req->get_response_body();
+  }
+  catch ( Exception $e )
+  {
+    return array(
+        'success' => false,
+        'error' => 'http_failed',
+        'http_error' => $e->getMessage()
+      );
+  }
   
   if ( $req->response_code != HTTP_OK )
   {
@@ -189,7 +201,8 @@ function yubikey_verify_timestamp($timestamp)
   $tolerance = intval(getConfig('yubikey_api_ts_tolerance', 150));
   
   $now = time();
-  $timestamp_seconds = strtotime(substr($timestamp, 0, -4));
+  $timestamp = preg_replace('/Z[0-9]{3}$/', '', $timestamp);
+  $timestamp_seconds = strtotime($timestamp);
 
   if ( !$timestamp || !$now )
   {

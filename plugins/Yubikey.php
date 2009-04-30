@@ -115,6 +115,7 @@ necessary; it is only included as a tool for development.
         err_must_have_password: 'Please enter your password in addition to your username and Yubikey.',
         err_key_not_authorized: 'This Yubikey is not authorized on this site.',
         err_otp_invalid_chars: '%this.yubiauth_err_invalid_otp%',
+        err_http_failed: 'Your OTP could not be validated because the authentication server could not be contacted. Technical error message: %http_error%',
         err_missing_api_key: 'Your OTP could not be validated because no Yubico API key is registered on this site.',
         err_http_response_error: 'Your OTP could not be validated because the Yubico authentication server reported an error.',
         err_malformed_response: 'Your OTP could not be validated because the Yubico authentication server returned an unexpected response.',
