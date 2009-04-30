@@ -145,68 +145,49 @@ function yk_login_validate_reqs(ta)
   $(ta.parentNode).remove('p');
   yubikey_otp_current = ta.value;
   
-  $('h3', ta.parentNode).text($lang.get('yubiauth_msg_validating_otp'));
+  miniPromptDestroy(ta, true);
   
-  ajaxPost(makeUrlNS('Special', 'Yubikey'), 'get_flags=' + ta.value.substr(0, 12), function(ajax)
+  if ( logindata )
+  {
+    if ( logindata.mb_object )
     {
-      if ( ajax.readyState == 4 && ajax.status == 200 )
+      // login window is open
+      if ( user_level == USER_LEVEL_GUEST )
       {
-        miniPromptDestroy(ta);
-        if ( !check_json_response(ajax.responseText) )
-        {
-          handle_invalid_json(ajax.responseText);
-          return false;
-        }
-        $('h3', ta.parentNode).text($lang.get('yubiauth_msg_otp_valid'));
-        var response = parseJSON(ajax.responseText);
-        if ( response.mode == 'error' )
-        {
-          alert('Yubikey server-side processing error: \n' + response.error);
-          return false;
-        }
-        if ( logindata )
-        {
-          if ( logindata.mb_object )
-          {
-            // login window is open
-            if ( user_level == USER_LEVEL_GUEST )
-            {
-              var show_username = response.flags & YK_SEC_NORMAL_USERNAME;
-              var show_password = response.flags & YK_SEC_NORMAL_PASSWORD;
-            }
-            else
-            {
-              var show_username = response.flags & YK_SEC_ELEV_USERNAME;
-              var show_password = response.flags & YK_SEC_ELEV_PASSWORD;
-            }
-            if ( !show_username )
-              $('#ajax_login_field_username').parent('td').hide().prev().hide();
-            if ( !show_password )
-              $('#ajax_login_field_password').parent('td').hide().prev().hide();
-            
-            var can_submit = true;
-            if ( show_username && !$('#ajax_login_field_username').attr('value') )
-            {
-              $('#ajax_login_field_password').focus();
-              can_submit = false;
-            }
-            if ( show_password && !$('#ajax_login_field_password').attr('value') )
-            {
-              if ( can_submit )
-              {
-                $('#ajax_login_field_password').focus();
-              }
-              can_submit = false;
-            }
-            
-            if ( can_submit )
-            {
-              $('#messageBoxButtons input:button:first').click();
-            }
-          }
-        }
+        var show_username = response.flags & YK_SEC_NORMAL_USERNAME;
+        var show_password = response.flags & YK_SEC_NORMAL_PASSWORD;
       }
-    });
+      else
+      {
+        var show_username = response.flags & YK_SEC_ELEV_USERNAME;
+        var show_password = response.flags & YK_SEC_ELEV_PASSWORD;
+      }
+      if ( !show_username )
+        $('#ajax_login_field_username').parent('td').hide().prev().hide();
+      if ( !show_password )
+        $('#ajax_login_field_password').parent('td').hide().prev().hide();
+      
+      var can_submit = true;
+      if ( show_username && !$('#ajax_login_field_username').attr('value') )
+      {
+        $('#ajax_login_field_password').focus();
+        can_submit = false;
+      }
+      if ( show_password && !$('#ajax_login_field_password').attr('value') )
+      {
+        if ( can_submit )
+        {
+          $('#ajax_login_field_password').focus();
+        }
+        can_submit = false;
+      }
+      
+      if ( can_submit )
+      {
+        $('#messageBoxButtons input:button:first').click();
+      }
+    }
+  }
 }
 
 function yk_clear(field_id, status_id)

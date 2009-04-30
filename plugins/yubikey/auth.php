@@ -75,7 +75,20 @@ function yubikey_auth_hook_json(&$userdata, $level, $remember)
     }
     else
     {
-      // user did enter an OTP
+      // user did enter an OTP; make sure it's associated with the username
+      $yubi_uid = $db->escape(substr($userdata['yubikey_otp'], 0, 12));
+      $q = $db->sql_query('SELECT 1 FROM ' . table_prefix . 'yubikey WHERE yubi_uid = \'' . $yubi_uid . '\';');
+      if ( !$q )
+        $db->die_json();
+      if ( $db->numrows() < 1 )
+      {
+        $db->free_result();
+        return array(
+            'mode' => 'error',
+            'error' => 'yubiauth_err_key_not_authorized'
+          );
+      }
+      $db->free_result();
       $do_validate_otp = true;
     }
   }
@@ -134,6 +147,15 @@ function yubikey_auth_hook_json(&$userdata, $level, $remember)
         $session->sql('INSERT INTO ' . table_prefix . "logs(log_type,action,time_id,date_string,author,edit_summary,page_text) VALUES\n"
                    . '  (\'security\', \'' . $auth_log_prefix . 'auth_bad\', '.time().', \''.enano_date('d M Y h:i a').'\', \'(Yubikey)\', '
                       . '\''.$db->escape($_SERVER['REMOTE_ADDR']).'\', ' . intval($level) . ')');
+      
+      if ( $otp_check['error'] === 'http_failed' )
+      {
+        return array(
+            'mode' => 'error',
+            'error' => 'yubiauth_err_' . $otp_check['error'],
+            'http_error' => $otp_check['http_error']
+          );
+      }
       return array(
           'mode' => 'error',
           'error' => 'yubiauth_err_' . $otp_check['error']
