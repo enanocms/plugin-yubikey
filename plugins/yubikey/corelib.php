@@ -231,16 +231,17 @@ function yubikey_attach_headers(&$template)
   $template->add_header('<link rel="stylesheet" type="text/css" href="' . scriptPath . '/plugins/yubikey/yubikey.css" />');
   // config option for all users have yubikey
   $user_flags = 0;
+  $yk_enabled = 0;
   if ( $session->user_logged_in )
   {
-    $q = $db->sql_query('SELECT COUNT(yubi_uid) > 0 FROM ' . table_prefix . "yubikey WHERE user_id = {$session->user_id};");
+    $q = $db->sql_query('SELECT COUNT(y.yubi_uid) > 0, u.user_yubikey_flags FROM ' . table_prefix . "yubikey AS y LEFT JOIN " . table_prefix . "users AS u ON ( u.user_id = y.user_id ) WHERE y.user_id = {$session->user_id};");
     if ( !$q )
       $db->_die();
     
-    list($user_flags) = $db->fetchrow_num();
+    list($yk_enabled, $user_flags) = $db->fetchrow_num();
     $db->free_result();
   }
   
-  $template->add_header('<script type="text/javascript">var yk_reg_require_otp = ' . getConfig('yubikey_reg_require_otp', '0') . '; var yk_user_enabled = ' . $user_flags . ';</script>');
+  $template->add_header('<script type="text/javascript">var yk_reg_require_otp = ' . getConfig('yubikey_reg_require_otp', '0') . '; var yk_user_enabled = ' . $yk_enabled . '; var yk_user_flags = ' . $user_flags . ';</script>');
 }
 

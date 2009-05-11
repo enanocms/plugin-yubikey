@@ -154,13 +154,13 @@ function yk_login_validate_reqs(ta)
       // login window is open
       if ( user_level == USER_LEVEL_GUEST )
       {
-        var show_username = response.flags & YK_SEC_NORMAL_USERNAME;
-        var show_password = response.flags & YK_SEC_NORMAL_PASSWORD;
+        var show_username = window.yk_user_flags & YK_SEC_NORMAL_USERNAME;
+        var show_password = window.yk_user_flags & YK_SEC_NORMAL_PASSWORD;
       }
       else
       {
-        var show_username = response.flags & YK_SEC_ELEV_USERNAME;
-        var show_password = response.flags & YK_SEC_ELEV_PASSWORD;
+        var show_username = window.yk_user_flags & YK_SEC_ELEV_USERNAME;
+        var show_password = window.yk_user_flags & YK_SEC_ELEV_PASSWORD;
       }
       if ( !show_username )
         $('#ajax_login_field_username').parent('td').hide().prev().hide();
