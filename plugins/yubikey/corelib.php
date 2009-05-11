@@ -201,7 +201,7 @@ function yubikey_verify_timestamp($timestamp)
   $tolerance = intval(getConfig('yubikey_api_ts_tolerance', 150));
   
   $now = time();
-  $timestamp = preg_replace('/Z[0-9]{3}$/', '', $timestamp);
+  $timestamp = preg_replace('/Z[0-9]{3,5}$/', '', $timestamp);
   $timestamp_seconds = strtotime($timestamp);
 
   if ( !$timestamp || !$now )
