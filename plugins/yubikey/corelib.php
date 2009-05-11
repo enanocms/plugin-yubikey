@@ -234,7 +234,7 @@ function yubikey_attach_headers(&$template)
   $yk_enabled = 0;
   if ( $session->user_logged_in )
   {
-    $q = $db->sql_query('SELECT COUNT(y.yubi_uid) > 0, u.user_yubikey_flags FROM ' . table_prefix . "yubikey AS y LEFT JOIN " . table_prefix . "users AS u ON ( u.user_id = y.user_id ) WHERE y.user_id = {$session->user_id};");
+    $q = $db->sql_query('SELECT COUNT(y.yubi_uid) > 0, u.user_yubikey_flags FROM ' . table_prefix . "yubikey AS y LEFT JOIN " . table_prefix . "users AS u ON ( u.user_id = y.user_id ) WHERE y.user_id = {$session->user_id} GROUP BY u.user_id, u.user_yubikey_flags;");
     if ( !$q )
       $db->_die();
     
