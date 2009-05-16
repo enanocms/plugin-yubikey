@@ -201,10 +201,9 @@ function yubikey_verify_timestamp($timestamp)
   $tolerance = intval(getConfig('yubikey_api_ts_tolerance', 150));
   
   $now = time();
-  $timestamp = preg_replace('/Z[0-9]{3,5}$/', '', $timestamp);
-  $timestamp_seconds = strtotime($timestamp);
+  $timestamp_seconds = yk_strtotime($timestamp);
 
-  if ( !$timestamp || !$now )
+  if ( !$timestamp || !$now || !$timestamp_seconds )
   {
     return false;
   }
@@ -217,6 +216,20 @@ function yubikey_verify_timestamp($timestamp)
   return false;
 }
 
+function yk_strtotime($timestamp)
+{
+  if ( !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(?:Z[0-9]+)$/', $timestamp, $match) )
+    return 0;
+  
+  $hour = intval($match[4]);
+  $minute = intval($match[5]);
+  $second = intval($match[6]);
+  $month = intval($match[2]);
+  $day = intval($match[3]);
+  $year = intval($match[1]);
+  
+  return gmmktime($hour, $minute, $second, $month, $day, $year);
+}
 
 $plugins->attachHook('compile_template', 'yubikey_attach_headers($this);');
 
