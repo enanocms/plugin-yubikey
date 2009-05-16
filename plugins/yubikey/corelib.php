@@ -218,7 +218,7 @@ function yubikey_verify_timestamp($timestamp)
 
 function yk_strtotime($timestamp)
 {
-  if ( !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(?:Z[0-9]+)$/', $timestamp, $match) )
+  if ( !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(?:Z[0-9]+)?$/', $timestamp, $match) )
     return 0;
   
   $hour = intval($match[4]);
