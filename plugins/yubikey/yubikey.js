@@ -55,7 +55,12 @@ function yk_mb_construct(mp)
           window.clearInterval(yk_interval);
           miniPromptDestroy(this);
         }
-        else if ( this.value.length >= 44 && !this.submitted )
+        else if ( this.value.length == 44 && !this.submitted )
+        {
+          this.submitted = true;
+          yk_handle_submit(this);
+        }
+        else if ( e.keyCode == 13 && this.value.length != 44 )
         {
           this.submitted = true;
           yk_handle_submit(this);
