@@ -212,7 +212,7 @@ function yk_clear(field_id, status_id)
 
 addOnloadHook(function()
   {
-    attachHook('login_build_form', 'yk_login_dlg_hook(table);');
+    attachHook('login_build_form', 'yk_login_dlg_hook(table, data);');
     attachHook('login_build_userinfo', 'if ( window.yubikey_otp_current ) userinfo.yubikey_otp = window.yubikey_otp_current;');
     if ( title == namespace_list.Special + 'Preferences/Yubikey' )
     {
@@ -220,7 +220,7 @@ addOnloadHook(function()
     }
   });
 
-function yk_login_dlg_hook(table)
+function yk_login_dlg_hook(table, data)
 {
   window.yubikey_otp_current = false;
   var tr = document.createElement('tr');
@@ -236,7 +236,7 @@ function yk_login_dlg_hook(table)
       $('#messageBoxButtons input:button:first').focus();
       $('#ajax_login_field_captcha').focus();
     });
-  if ( window.yk_reg_require_otp || window.yk_user_enabled )
+  if ( ( window.yk_reg_require_otp || window.yk_user_enabled ) && !data.locked_out.locked_out )
   {
     setTimeout(function()
       {
