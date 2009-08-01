@@ -217,6 +217,11 @@ function yk_clear(field_id, status_id)
 
 addOnloadHook(function()
   {
+    if ( is_iPhone )
+      // kinda can't plug a yubikey into an iPhone
+      // ... yet?
+      return;
+    
     attachHook('login_build_form', 'yk_login_dlg_hook(table, data);');
     attachHook('login_build_userinfo', 'if ( window.yubikey_otp_current ) userinfo.yubikey_otp = window.yubikey_otp_current;');
     if ( title == namespace_list.Special + 'Preferences/Yubikey' )
