@@ -57,6 +57,24 @@ function yubikey_validate_otp($otp)
         'error' => 'otp_invalid_chars'
       );
   }
+  // are we using local YMS?
+  if ( getConfig('yubikey_use_local_yms', 0) && defined('YMS_INSTALLED') )
+  {
+    $result = yms_validate_otp($otp, $api_id);
+    if ( $result == 'OK' )
+    {
+      return array(
+          'success' => true
+        );
+    }
+    else
+    {
+      return array(
+        'success' => false,
+        'error' => strtolower("response_{$result}")
+      );
+    }
+  }
   // make HTTP request
   require_once( ENANO_ROOT . '/includes/http.php' );
   $auth_url = getConfig('yubikey_auth_server', YK_DEFAULT_VERIFY_URL);
@@ -161,20 +179,33 @@ function yubikey_validate_otp($otp)
   }
 }
 
-function yubikey_sign($arr)
+function yubikey_sign($arr, $use_api_key = false)
 {
   static $api_key = false;
   
   ksort($arr);
   
-  if ( !$api_key )
+  if ( !$use_api_key )
   {
-    $api_key = getConfig('yubikey_api_key');
-    $api_key = hexencode(base64_decode($api_key), '', '');
+    if ( !$api_key )
+    {
+      $api_key = getConfig('yubikey_api_key');
+      $api_key = hexencode(base64_decode($api_key), '', '');
+    }
+    $use_api_key = $api_key;
   }
+  /*
+  else
+  {
+    $use_api_key = hexencode(base64_decode($use_api_key), '', '');
+  }
+  */
   
-  if ( isset($arr['h']) )
-    unset($arr['h']);
+  foreach ( array('h', 'title', 'auth', 'do') as $key )
+  {
+    if ( isset($arr[$key]) )
+      unset($arr[$key]);
+  }
   
   $req = array();
   foreach ( $arr as $key => $val )
@@ -183,7 +214,7 @@ function yubikey_sign($arr)
   }
   $req = implode('&', $req);
   
-  $sig = hmac_sha1($req, $api_key);
+  $sig = hmac_sha1($req, $use_api_key);
   $sig = hexdecode($sig);
   $sig = base64_encode($sig);
   

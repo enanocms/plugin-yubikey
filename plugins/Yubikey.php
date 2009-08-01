@@ -171,6 +171,8 @@ necessary; it is only included as a tool for development.
         field_reg_require_otp_title: 'Yubikey required for registration:',
         field_reg_require_otp_hint: 'If this is enabled, users will be asked to enroll a Yubikey during registration. The enrolled Yubikey will be authorized for the new account.',
         field_reg_require_otp: 'Require Yubikey during registration',
+        field_use_local_pre: 'Or:',
+        field_use_local: 'Use local YMS',
         
         err_invalid_auth_server: 'The URL to the Yubikey authentication server that you entered is invalid.'
       }

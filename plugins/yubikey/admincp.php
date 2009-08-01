@@ -49,6 +49,16 @@ function yubikey_admin_cp_ui()
       </td>
       <td class="row2">
         <input type="text" name="yubikey_auth_server" value="<?php echo htmlspecialchars(getConfig('yubikey_auth_server', YK_DEFAULT_VERIFY_URL)); ?>" size="30" />
+        <?php
+        if ( defined('YMS_INSTALLED') )
+        {
+          echo '<br />';
+          echo $lang->get('yubiacp_field_use_local_pre');
+          ?> <label><input type="checkbox" name="yubikey_use_local_yms" <?php echo getConfig('yubikey_use_local_yms', 0) ? 'checked="checked" ' : ''; ?>/><?php
+          echo $lang->get('yubiacp_field_use_local');
+          echo '</label>';
+        }
+        ?>
       </td>
     </tr>
     
@@ -87,6 +97,7 @@ function yubikey_admin_cp_save()
   setConfig('yubikey_api_key_id', intval($_POST['yubikey_api_key_id']));
   setConfig('yubikey_enroll_limit', intval($_POST['yubikey_enroll_limit']));
   setConfig('yubikey_reg_require_otp', isset($_POST['yubikey_reg_require_otp']) ? '1' : '0');
+  setConfig('yubikey_use_local_yms', isset($_POST['yubikey_use_local_yms']) && defined('YMS_INSTALLED') ? '1' : '0');
   
   if ( preg_match('#^(?:https?://)?(\[?[a-z0-9-:]+(?:\.[a-z0-9-:]+\]?)*)(/.*)$#', $_POST['yubikey_auth_server']) )
     setConfig('yubikey_auth_server', $_POST['yubikey_auth_server']);
