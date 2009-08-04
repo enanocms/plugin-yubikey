@@ -48,7 +48,7 @@ div.yubikey_bar > img {
   height: 88px;
   background-image: url(./field.png);
   background-repeat: no-repeat;
-  background-position: -44px -88px;
+  background-position: 0px -88px;
 }
 
 div.yubikey_bar > img.yubikey_bar_error {

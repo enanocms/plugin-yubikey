@@ -34,7 +34,7 @@ function yk_mb_construct(mp)
   mp.style.textAlign = 'center';
   mp.innerHTML = '<h3>' + $lang.get('yubiauth_msg_please_touch_key') + '</h3>';
   var progress = document.createElement('div');
-  $(progress).addClass('yubikey_bar');
+  $(progress).addClass('yubikey_bar').css('text-align', 'left');
   var progimg = document.createElement('img');
   progimg.src = cdnPath + '/images/spacer.gif';
   progress.appendChild(progimg);
@@ -47,6 +47,7 @@ function yk_mb_construct(mp)
     .css('color', '#fff')
     .css('font-size', '1px')
     .css('padding', '0')
+    .css('opacity', '0')
     .attr('size', '1')
     .keyup(function(e)
       {
@@ -69,7 +70,7 @@ function yk_mb_construct(mp)
         {
           $('div.yubikey_bar > img', this.parentNode)
             .css('width', String(this.value.length * 2) + 'px')
-            .css('background-position', String((this.value.length > 44 ? 44 : this.value.length) - 44) + 'px -88px');
+            //.css('background-position', String((this.value.length > 44 ? 44 : this.value.length) - 44) + 'px -88px');
         }
         e.preventDefault();
         e.stopPropagation();
@@ -84,7 +85,10 @@ function yk_mb_construct(mp)
     }, 750);
   var info = document.createElement('p');
   $(info)
-    .html($lang.get('yubiauth_msg_close_instructions'))
+    .append('<span style="color: #ffffff; font-size: smaller;">' + $lang.get('yubiauth_msg_close_instructions') + '</span>&nbsp;&nbsp;')
+    .append('<a class="abutton abutton_green" href="#" onclick="miniPromptDestroy(this); return false;">' + $lang.get('etc_cancel') + '</a>&nbsp;&nbsp;')
+    //.append('<br />')
+    .append('<span style="color: #909090; font-size: smaller;">' + $lang.get('yubiauth_msg_close_instructions') + '</span>')
     .css('margin-top', '0');
   mp.appendChild(info);
 }

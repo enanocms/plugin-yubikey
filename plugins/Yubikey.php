@@ -91,7 +91,7 @@ necessary; it is only included as a tool for development.
       },
       yubiauth: {
         msg_please_touch_key: 'Please touch your Yubikey',
-        msg_close_instructions: 'Press <tt>Esc</tt> to cancel',
+        msg_close_instructions: 'or press <tt>Esc</tt>',
         msg_invalid_chars: 'OTP contains invalid characters',
         msg_too_long: 'OTP is too long',
         msg_validating_otp: 'Validating OTP...',
