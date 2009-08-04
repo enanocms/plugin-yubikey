@@ -15,6 +15,7 @@ function generate_yubikey_field($name = 'yubikey_otp', $value = false)
   $fid = substr(sha1(microtime() . mt_rand()), 0, 12);
   $class = $value ? 'wasfull' : 'wasempty';
   $html = '<input id="yubifield' . $fid . '" class="' . $class . '" type="hidden" name="' . $name . '" value="' . ( is_string($value) ? $value : '' ) . '" />';
+  $html .= '<noscript><input type="text" name="' . $name . '" class="yubikey_noscript" value="' . ( is_string($value) ? $value : '' ) . '" /> </noscript>';
   if ( $value )
   {
     $html .= '<span id="yubistat' . $fid . '" class="yubikey_status enrolled">' . $lang->get('yubiauth_ctl_status_enrolled') . '</span>';
@@ -34,8 +35,6 @@ function generate_yubikey_field($name = 'yubikey_otp', $value = false)
              . $lang->get('yubiauth_ctl_btn_clear') .
              '</a>';
   }
-  $html = '<noscript><input type="text" name="' . $name . '" class="yubikey_noscript" value="' . ( is_string($value) ? $value : '' ) . '" /> </noscript>'
-          . $html; // '<script type="text/javascript">document.write(unescape("' . rawurlencode($html) . '"));</script>';
   return $html;
 }
 
