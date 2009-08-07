@@ -96,7 +96,7 @@ necessary; it is only included as a tool for development.
         msg_too_long: 'OTP is too long',
         msg_validating_otp: 'Validating OTP...',
         msg_otp_valid: 'OTP validated',
-        btn_enter_otp: 'Enter a Yubikey OTP',
+        btn_enter_otp: 'Log in with Yubikey',
         lbl_otp_field: 'Yubikey OTP:',
         
         ctl_btn_change_key: 'Change key',
