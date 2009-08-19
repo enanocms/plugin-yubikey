@@ -98,6 +98,19 @@ function yubikey_user_cp($section)
     $q = $db->sql_query('UPDATE ' . table_prefix . "users SET user_yubikey_flags = $yubi_flags WHERE user_id = {$session->user_id};");
     if ( !$q )
       $db->_die();
+    
+    // regenerate session
+    $q = $db->sql_query('SELECT password FROM ' . table_prefix . "users WHERE user_id = {$session->user_id};");
+    if ( !$q )
+      $db->_die();
+    list($password_hmac) = $db->fetchrow_num();
+    
+    $session->register_session($session->user_id, $session->username, $password_hmac, USER_LEVEL_MEMBER, false);
+    $session->logout(USER_LEVEL_CHPREF);
+    
+    // redirect back to normal CP
+    @ob_end_clean();
+    redirect(makeUrlNS('Special', 'Preferences'), $lang->get('yubiucp_msg_save_title'), $lang->get('yubiucp_msg_save_body'), 3);
   }
   else
   {

@@ -7,6 +7,8 @@ if ( getConfig('yubikey_enable', '1') != '1' )
 $plugins->attachHook('login_process_userdata_json', 'return yubikey_auth_hook_json($userinfo, $req["level"], @$req["remember"]);');
 // hook into special page init
 $plugins->attachHook('session_started', 'yubikey_add_special_pages();');
+// session key security
+$plugins->attachHook('session_key_calc', 'yubikey_sk_calc($user_id, $key_pieces, $sk_mode);');
 
 function yubikey_auth_hook_json(&$userdata, $level, $remember)
 {
@@ -238,6 +240,20 @@ function yubikey_add_special_pages()
       'namespace' => 'Special',
       'visible' => 0, 'protected' => 0, 'comments_on' => 0, 'special' => 0
     ));
+}
+
+function yubikey_sk_calc($user_id, &$key_pieces, &$sk_mode)
+{
+  global $db, $session, $paths, $template, $plugins; // Common objects
+  // hash the user's yubikeys
+  $q = $db->sql_query('SELECT yubi_uid FROM ' . table_prefix . "yubikey WHERE user_id = $user_id;");
+  if ( !$q )
+    $db->_die();
+  
+  while ( $row = $db->fetchrow() )
+  {
+    $key_pieces[] = $row['yubi_uid'];
+  }
 }
 
 function page_Special_Yubikey()

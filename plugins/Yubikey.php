@@ -138,6 +138,9 @@ necessary; it is only included as a tool for development.
       yubiucp: {
         panel_title: 'Yubikey settings',
         
+        msg_save_title: 'Yubikey preferences saved',
+        msg_save_body: 'Your preferences have been saved. You will be transferred back to the User CP momentarily.',
+        
         field_enable_title: 'Enable Yubikey support on my account:',
         field_enable_hint: 'Disabling support will remove any keys that are enrolled for your account.',
         field_enable: 'Enabled',
