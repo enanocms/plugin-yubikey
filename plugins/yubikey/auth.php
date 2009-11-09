@@ -30,13 +30,7 @@ function yubikey_auth_hook_json(&$userdata, $level, $remember)
     $userdata['yubikey_otp'] = $userdata['password'];
   }
   
-  // Look for a lockout
-  $lockout_info = $session->get_lockout_info($lockdata);
-  if ( $lockout_info['locked_out'] )
-  {
-    // pass on to normal auth so the lockout can be sent back properly
-    return null;
-  }
+  // Lockouts removed from here - they're done during preprocessing now.
   
   if ( !empty($userdata['username']) )
   {
