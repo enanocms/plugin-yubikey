@@ -22,6 +22,11 @@ a.yubikey_enroll {
   font-size: smaller;
 }
 
+span.yubikey_pubkey {
+  font-size: smaller;
+  color: #666;
+}
+
 tr.yk_alt1 td {
   background-color: #f8f8f8;
 }

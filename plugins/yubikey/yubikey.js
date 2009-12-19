@@ -56,12 +56,8 @@ function yk_mb_construct(mp)
           window.clearInterval(yk_interval);
           miniPromptDestroy(this);
         }
-        else if ( this.value.length == 44 && !this.submitted )
-        {
-          this.submitted = true;
-          yk_handle_submit(this);
-        }
-        else if ( e.keyCode == 13 && this.value.length != 44 )
+        // 0.3: submit only upon a keycode 13
+        else if ( e.keyCode == 13 )
         {
           this.submitted = true;
           yk_handle_submit(this);
@@ -97,6 +93,7 @@ function yk_handle_submit(ta)
 {
   if ( ta.value.length > 44 || !ta.value.match(/^[cbdefghijklnrtuv]+$/) )
   {
+    // report "invalid characters"
     setTimeout(function()
       {
         var parent = ta.parentNode;
@@ -127,7 +124,10 @@ function yk_handle_submit(ta)
     var status = document.getElementById(ta.yk_status_id);
     if ( $(status).hasClass('empty') || $(status).hasClass('rmpending') )
     {
-      $(status).next('a')
+      $(status)
+      .next('span.yubikey_pubkey')
+        .text(ta.value.substr(0, 12))
+      .next('a.yubikey_enroll')
         .text($lang.get('yubiauth_ctl_btn_change_key'))
         .addClass('abutton_green')
         .after(' <a class="abutton abutton_red yubikey_enroll" href="#yk_clear" onclick="yk_clear(\'' + ta.yk_field_id + '\', \'' + ta.yk_status_id + '\'); return false;">'
@@ -135,6 +135,7 @@ function yk_handle_submit(ta)
                '</a>');
     }
     $(status).removeClass('empty').removeClass('enrolled').removeClass('rmpending').addClass('savepending').html($lang.get('yubiauth_ctl_status_enrolled_pending'));
+    $(status).next('span.yubikey_pubkey').text(ta.value.substr(0, 12));
     field.value = ta.value;
     miniPromptDestroy(ta);
     return true;
@@ -163,8 +164,35 @@ function yk_login_validate_reqs(ta)
       // login window is open
       if ( user_level == USER_LEVEL_GUEST )
       {
-        var show_username = window.yk_user_flags & YK_SEC_NORMAL_USERNAME;
-        var show_password = window.yk_user_flags & YK_SEC_NORMAL_PASSWORD;
+        // for guests, get the user's yubikey auth flags
+        // we're still ok to submit, so make sure twofactor isn't enabled
+        // as we are a guest, we have to get the flags for the user from the server
+        var ajax = ajaxMakeXHR();
+        var uri = makeUrlNS('Special', 'Yubikey', 'get_flags=' + ta.value.substr(0, 12));
+        var flags = 0;
+        try
+        {
+          ajax.open('GET', uri, false);
+          ajax.send(null);
+          
+          if ( ajax.readyState == 4 && ajax.status == 200 )
+          {
+            // we got it
+            var response = String(ajax.responseText + '');
+            if ( check_json_response(response) )
+            {
+              response = parseJSON(response);
+              flags = response.flags || 0;
+            }
+          }
+        }
+        catch ( e )
+        {
+          ajaxLoginSetStatus(AJAX_STATUS_ERROR);
+          return false;
+        }
+        var show_username = flags & YK_SEC_NORMAL_USERNAME;
+        var show_password = flags & YK_SEC_NORMAL_PASSWORD;
       }
       else
       {
@@ -179,13 +207,25 @@ function yk_login_validate_reqs(ta)
       var can_submit = true;
       if ( show_username && !$('#ajax_login_field_username').attr('value') )
       {
-        $('#ajax_login_field_password').focus();
+        $('#ajax_login_field_username').focus();
+        
+        if ( !show_password )
+          $('#ajax_login_field_username').keyup(function(e)
+            {
+              // assign press of Enter in username field to submit
+              if ( e.keyCode == 13 )
+              {
+                $('#messageBoxButtons input:button:first').click();
+              }
+            });
+        
         can_submit = false;
       }
       if ( show_password && !$('#ajax_login_field_password').attr('value') )
       {
         if ( can_submit )
         {
+          // can_submit only true if show_username false
           $('#ajax_login_field_password').focus();
         }
         can_submit = false;
@@ -212,6 +252,8 @@ function yk_clear(field_id, status_id)
     .removeClass('enrolled')
     .addClass( was_pending ? 'empty' : 'rmpending' )
     .text( was_pending ? $lang.get('yubiauth_ctl_status_empty') : $lang.get('yubiauth_ctl_status_remove_pending') )
+    .next('span.yubikey_pubkey')
+      .text('')
     .next('a')
       .text($lang.get('yubiauth_ctl_btn_enroll'))
       .removeClass('abutton_green')

@@ -28,6 +28,12 @@ function generate_yubikey_field($name = 'yubikey_otp', $value = false)
     $atext = $lang->get('yubiauth_ctl_btn_enroll');
     $classadd = '';
   }
+  
+  $html .= ' <span class="yubikey_pubkey">';
+  if ( !empty($value) )
+    $html .= htmlspecialchars(substr($value, 0, 12));
+  $html .= '</span> ';
+  
   $html .= ' <a class="abutton' . $classadd . ' yubikey_enroll" onclick="yk_mb_init(\'yubifield' . $fid . '\', \'yubistat' . $fid . '\'); return false;" href="#enroll">' . $atext . '</a>';
   if ( $value )
   {
@@ -35,6 +41,7 @@ function generate_yubikey_field($name = 'yubikey_otp', $value = false)
              . $lang->get('yubiauth_ctl_btn_clear') .
              '</a>';
   }
+  
   return $html;
 }
 

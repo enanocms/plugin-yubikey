@@ -105,12 +105,33 @@ function yubikey_user_cp($section)
       $db->_die();
     list($password_hmac) = $db->fetchrow_num();
     
-    $session->register_session($session->user_id, $session->username, $password_hmac, USER_LEVEL_MEMBER, false);
+    @$session->register_session($session->user_id, $session->username, $password_hmac, USER_LEVEL_MEMBER, false);
     $session->logout(USER_LEVEL_CHPREF);
     
     // redirect back to normal CP
-    @ob_end_clean();
-    redirect(makeUrlNS('Special', 'Preferences'), $lang->get('yubiucp_msg_save_title'), $lang->get('yubiucp_msg_save_body'), 3);
+    // if OB-ing isn't enabled, require a JS redirect (hey, not many other options...)
+    if ( @ob_get_contents() )
+    {
+      @ob_end_clean();
+      redirect(makeUrlNS('Special', 'Preferences'), $lang->get('yubiucp_msg_save_title'), $lang->get('yubiucp_msg_save_body'), 3);
+    }
+    else
+    {
+      echo '<h3>' . $lang->get('yubiucp_msg_save_title') . '</h3>';
+      echo '<p>' . $lang->get('yubiucp_msg_save_body') . '</p>';
+      // not much choice here, i'm resorting to javascript because the user CP always
+      // sends headers :-/
+      echo '<script type="text/javascript">
+        addOnloadHook(function()
+        {' .
+        // note: $_COOKIE['sid'] has just been assigned by $session->register_session() - so it's safe to use here.
+        '
+          createCookie(\'sid\', \'' . $_COOKIE['sid'] . '\');
+          window.location = makeUrlNS(\'Special\', \'Preferences\');
+        });
+      </script>';
+      return true;
+    }
   }
   else
   {
