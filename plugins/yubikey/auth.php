@@ -119,7 +119,7 @@ function yubikey_auth_hook_json(&$userdata, $level, $remember)
     {
       if ( !$do_validate_pass )
         $session->sql('INSERT INTO ' . table_prefix . "logs(log_type,action,time_id,date_string,author,edit_summary,page_text) VALUES\n"
-                   . '  (\'security\', \'' . $auth_log_prefix . 'auth_bad\', '.time().', \''.enano_date('d M Y h:i a').'\', \'(Yubikey)\', '
+                   . '  (\'security\', \'' . $auth_log_prefix . 'auth_bad\', '.time().', \'DEPRECATED\', \'(Yubikey)\', '
                       . '\''.$db->escape($_SERVER['REMOTE_ADDR']).'\', ' . intval($level) . ')');
       
       return array(
@@ -132,6 +132,8 @@ function yubikey_auth_hook_json(&$userdata, $level, $remember)
     $do_validate_otp = true;
     $do_validate_user = $flags & $user_flag;
     $do_validate_pass = $flags & $pass_flag;
+    // to complete security logs later
+    $userdata['username'] = $username;
   }
   else
   {
@@ -149,7 +151,7 @@ function yubikey_auth_hook_json(&$userdata, $level, $remember)
     {
       if ( !$do_validate_pass )
         $session->sql('INSERT INTO ' . table_prefix . "logs(log_type,action,time_id,date_string,author,edit_summary,page_text) VALUES\n"
-                   . '  (\'security\', \'' . $auth_log_prefix . 'auth_bad\', '.time().', \''.enano_date('d M Y h:i a').'\', \'(Yubikey)\', '
+                   . '  (\'security\', \'' . $auth_log_prefix . 'auth_bad\', '.time().', \'DEPRECATED\', \'(Yubikey)\', '
                       . '\''.$db->escape($_SERVER['REMOTE_ADDR']).'\', ' . intval($level) . ')');
       
       if ( $otp_check['error'] === 'http_failed' )
@@ -180,7 +182,7 @@ function yubikey_auth_hook_json(&$userdata, $level, $remember)
       // Username incorrect
       if ( !$do_validate_pass )
         $session->sql('INSERT INTO ' . table_prefix . "logs(log_type,action,time_id,date_string,author,edit_summary,page_text) VALUES\n"
-                   . '  (\'security\', \'' . $auth_log_prefix . 'auth_bad\', '.time().', \''.enano_date('d M Y h:i a').'\', \'(Yubikey)\', '
+                   . '  (\'security\', \'' . $auth_log_prefix . 'auth_bad\', '.time().', \'DEPRECATED\', \'(Yubikey)\', '
                       . '\''.$db->escape($_SERVER['REMOTE_ADDR']).'\', ' . intval($level) . ')');
       return array(
           'mode' => 'error',
@@ -205,7 +207,7 @@ function yubikey_auth_hook_json(&$userdata, $level, $remember)
   {
     // No password required; validated, issue session key
     $session->sql('INSERT INTO ' . table_prefix . "logs(log_type,action,time_id,date_string,author,edit_summary,page_text) VALUES\n"
-                   . '  (\'security\', \'' . $auth_log_prefix . 'auth_good\', '.time().', \''.enano_date('d M Y h:i a').'\', \'' . $db->escape($userdata['username']) . '\', '
+                   . '  (\'security\', \'' . $auth_log_prefix . 'auth_good\', '.time().', \'DEPRECATED\', \'' . $db->escape($userdata['username']) . '\', '
                       . '\''.$db->escape($_SERVER['REMOTE_ADDR']).'\', ' . intval($level) . ')');
         
     $q = $db->sql_query('SELECT password FROM ' . table_prefix . "users WHERE user_id = $user_id;");
@@ -215,7 +217,7 @@ function yubikey_auth_hook_json(&$userdata, $level, $remember)
     list($password) = $db->fetchrow_num();
     $db->free_result();
     
-    $session->register_session($user_id, $userdata['username'], $password, $level, $remember);
+    $session->register_session($user_id, $userdata['username'], $password, intval($level), $remember);
     return true;
   }
 }
