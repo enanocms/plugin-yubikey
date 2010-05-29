@@ -49,7 +49,8 @@ function yubikey_validate_otp($otp)
 {
   $api_key = getConfig('yubikey_api_key');
   $api_id  = getConfig('yubikey_api_key_id');
-  if ( !$api_key || !$api_id )
+  // Don't require an API key or user ID to be installed if we're using local YMS
+  if ( !(getConfig('yubikey_use_local_yms', 0) && defined('YMS_INSTALLED')) && (!$api_key || !$api_id) )
   {
     return array(
         'success' => false,
@@ -291,6 +292,8 @@ function yubikey_attach_headers(&$template)
     list($yk_enabled, $user_flags) = $db->fetchrow_num();
     $db->free_result();
   }
+  $yk_enabled = intval($yk_enabled);
+  $user_flags = intval($user_flags);
   
   $template->add_header('<script type="text/javascript">var yk_reg_require_otp = ' . getConfig('yubikey_reg_require_otp', '0') . '; var yk_user_enabled = ' . $yk_enabled . '; var yk_user_flags = ' . $user_flags . ';</script>');
 }
