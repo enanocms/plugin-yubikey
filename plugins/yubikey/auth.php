@@ -81,7 +81,7 @@ function yubikey_auth_hook_json(&$userdata, $level, $remember)
 		{
 			// user did enter an OTP; make sure it's associated with the username
 			$yubi_uid = $db->escape(substr($userdata['yubikey_otp'], 0, 12));
-			$q = $db->sql_query('SELECT 1 FROM ' . table_prefix . 'yubikey WHERE yubi_uid = \'' . $yubi_uid . '\';');
+			$q = $db->sql_query('SELECT user_id FROM ' . table_prefix . 'yubikey WHERE yubi_uid = \'' . $yubi_uid . '\';');
 			if ( !$q )
 				$db->die_json();
 			if ( $db->numrows() < 1 )
@@ -90,6 +90,14 @@ function yubikey_auth_hook_json(&$userdata, $level, $remember)
 				return array(
 						'mode' => 'error',
 						'error' => 'yubiauth_err_key_not_authorized'
+					);
+			}
+			list($yubi_pair_uid) = $db->fetchrow_num();
+			if ( $yubi_pair_uid !== $user_id )
+			{
+				return array(
+						'mode' => 'error',
+						'error' => 'yubiauth_err_uid_mismatch'
 					);
 			}
 			$db->free_result();
@@ -129,6 +137,19 @@ function yubikey_auth_hook_json(&$userdata, $level, $remember)
 		}
 		
 		list($user_id, $username, $flags) = $db->fetchrow_num();
+		
+		if ( $level > USER_LEVEL_MEMBER )
+		{
+			$session->start();
+			if ( $session->user_logged_in && ($session->user_id !== $user_id) )
+			{
+				return array(
+						'mode' => 'error',
+						'error' => 'yubiauth_err_uid_mismatch'
+					);
+			}
+		}
+		
 		$do_validate_otp = true;
 		$do_validate_user = $flags & $user_flag;
 		$do_validate_pass = $flags & $pass_flag;
@@ -143,6 +164,7 @@ function yubikey_auth_hook_json(&$userdata, $level, $remember)
 				'error' => 'yubiauth_err_nothing_provided'
 			);
 	}
+	
 	if ( $do_validate_otp )
 	{
 		// We need to validate the OTP.

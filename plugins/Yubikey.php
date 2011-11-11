@@ -120,6 +120,7 @@ necessary; it is only included as a tool for development.
 				err_http_response_error: 'Your OTP could not be validated because the Yubico authentication server reported an error.',
 				err_malformed_response: 'Your OTP could not be validated because the Yubico authentication server returned an unexpected response.',
 				err_timestamp_check_failed: 'Your OTP could not be validated because the timestamp of the response from the Yubico authentication server was out of bounds.',
+				err_uid_mismatch: 'This Yubikey is registered to a different user account than the one you are trying to log into.',
 				err_response_missing_sig: 'Your OTP could not be validated because the Yubico authentication server did not sign its response.',
 				err_response_invalid_sig: 'Your OTP could not be validated because the signature of the authentication response was invalid.',
 				err_response_missing_status: '%this.yubiauth_err_malformed_response%',
